@@ -3,6 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsuarioModule } from './usuario/usuario.module';
+import { AuthModule } from './auth/auth.module';
+import { EstudianteModule } from './estudiante/estudiante.module';
+import { TutorModule } from './tutor/tutor.module';
+import { CoordinadorModule } from './coordinador/coordinador.module';
 
 @Module({
   imports: [
@@ -21,6 +26,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       //De lo contrario se coloca en false
       synchronize: true, 
     }),
+    UsuarioModule,
+    AuthModule,
+    EstudianteModule,
+    TutorModule,
+    CoordinadorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
