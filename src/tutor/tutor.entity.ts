@@ -1,6 +1,6 @@
 import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 import { Usuario } from '../usuario/usuario.entity';
-// import { Materia } from '../materia/materia.entity';
+import { Materia } from '../materia/materia.entity';
 
 @Entity()
 export class Tutor {
@@ -23,7 +23,7 @@ export class Tutor {
   @Column({ length: 20 })
   telefono: string;
 
-  /* @ManyToOne(() => Materia)
+  @ManyToOne(() => Materia)
   @JoinColumn({ name: 'materia_id' })
-  materia: Materia; */
+  materia: Materia;
 }
