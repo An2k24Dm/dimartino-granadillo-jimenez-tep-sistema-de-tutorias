@@ -48,22 +48,27 @@ export class UsuarioService {
     }
 
     async encontrarTodos(): Promise<any[]> {
-        const usuarios = await this.usuarioRepo.find();
-        const usuariosConRoles = await Promise.all(
+        try {
+            const usuarios = await this.usuarioRepo.find();
+            const usuariosConRoles = await Promise.all(
             usuarios.map(async (usuario) => {
-            const estudiante = await this.estudianteRepo.findOne({ where: { id: usuario.id } });
-            const coordinador = await this.coordinadorRepo.findOne({ where: { id: usuario.id } });
-            const tutor = await this.tutorRepo.findOne({ where: { id: usuario.id } });
+                const estudiante = await this.estudianteRepo.findOne({ where: { id: usuario.id } });
+                const coordinador = await this.coordinadorRepo.findOne({ where: { id: usuario.id } });
+                const tutor = await this.tutorRepo.findOne({ where: { id: usuario.id } });
 
-            return {
+                return {
                 ...usuario,
                 estudiante,
                 coordinador,
                 tutor,
-            };
+                };
             }),
-        );
-        return usuariosConRoles;
+            );
+            return usuariosConRoles;
+        } catch (error) {
+            console.error('Error obteniendo usuarios con roles:', error);
+            throw new InternalServerErrorException('Ocurrió un error al obtener los usuarios');
+        }
     }
 
     async eliminarUsuarioConRol(id: number): Promise<void> {
