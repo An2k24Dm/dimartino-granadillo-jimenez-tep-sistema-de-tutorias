@@ -55,4 +55,17 @@ export class EstudianteService {
       await queryRunner.release();
     }
   }
+
+  async obtenerPerfil(usuarioId: number): Promise<Estudiante> {
+    const estudiante = await this.estudianteRepo.findOne({
+      where: { id: usuarioId },
+      relations: ['usuario'], // para traer datos del usuario asociado
+    });
+
+    if (!estudiante) {
+      throw new NotFoundException('Estudiante no encontrado');
+    }
+
+    return estudiante;
+  }
 }
