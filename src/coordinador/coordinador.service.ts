@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Coordinador } from './coordinador.entity';
@@ -52,5 +52,17 @@ export class CoordinadorService {
     } finally {
       await queryRunner.release();
     }
+  }
+  async obtenerPerfil(usuarioId: number): Promise<Coordinador> {
+    const estudiante = await this.coordinadorRepo.findOne({
+      where: { id: usuarioId },
+      relations: ['usuario'], // para traer datos del usuario asociado
+    });
+
+    if (!estudiante) {
+      throw new NotFoundException('Tutor no encontrado');
+    }
+
+    return estudiante;
   }
 }
