@@ -1,4 +1,4 @@
-import { Controller, Get, Delete, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Delete, Param, ParseIntPipe, BadRequestException } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { Usuario } from './usuario.entity';
 
@@ -12,8 +12,12 @@ export class UsuarioController {
     }
 
     @Delete(':id')
-    async eliminarUsuario(@Param('id', ParseIntPipe) id: number): Promise<{ mensaje: string }> {
+    async eliminar(
+    @Param('id', new ParseIntPipe({ exceptionFactory: (error) => {
+        return new BadRequestException('El ID debe ser un número entero válido');
+    }})) id: number,
+    ): Promise<{ mensaje: string }> {
         await this.usuarioService.eliminarUsuarioConRol(id);
-        return { mensaje: `Usuario con ID ${id} eliminado correctamente` };
+    return { mensaje: `Usuario con ID ${id} eliminados correctamente` };
     }
 }
