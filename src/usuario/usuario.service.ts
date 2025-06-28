@@ -47,8 +47,23 @@ export class UsuarioService {
         return this.usuarioRepo.findOne({ where: { correo } });
     }
 
-    async encontrarTodos(): Promise<Usuario[]> { //Obtener todos los usuarios
-        return this.usuarioRepo.find();
+    async encontrarTodos(): Promise<any[]> {
+        const usuarios = await this.usuarioRepo.find();
+        const usuariosConRoles = await Promise.all(
+            usuarios.map(async (usuario) => {
+            const estudiante = await this.estudianteRepo.findOne({ where: { id: usuario.id } });
+            const coordinador = await this.coordinadorRepo.findOne({ where: { id: usuario.id } });
+            const tutor = await this.tutorRepo.findOne({ where: { id: usuario.id } });
+
+            return {
+                ...usuario,
+                estudiante,
+                coordinador,
+                tutor,
+            };
+            }),
+        );
+        return usuariosConRoles;
     }
 
     async eliminarUsuarioConRol(id: number): Promise<void> {
