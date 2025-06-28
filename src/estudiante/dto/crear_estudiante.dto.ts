@@ -5,7 +5,7 @@ import { Type } from 'class-transformer';
 export class CrearEstudianteDto {
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @Length(3, 100, { message: 'El nombre debe tener entre 3 y 100 caracteres' })
-  @Matches(/^[^\d]*$/, { message: 'El nombre no debe contener números' })
+  @Matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/, { message: 'El nombre no debe contener números ni caracteres especiales' })
   nombre: string;
 
   @IsEmail({}, { message: 'El correo debe tener un formato válido' })
