@@ -1,7 +1,6 @@
 import { Matches, IsEmail, MinLength, MaxLength, IsNotEmpty, Length } from 'class-validator';
-import { EsTelefonoValido } from '../../common/decorators/es_telefono.decorator';
 
-export class CrearTutorDto {
+export class CrearCoordinadorDto {
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @Length(3, 100, { message: 'El nombre debe tener entre 3 y 100 caracteres' })
   @Matches(/^[^\d]*$/, { message: 'El nombre no debe contener números' })
@@ -20,16 +19,13 @@ export class CrearTutorDto {
   @Matches(/^\d+$/, { message: 'La cédula solo debe contener números' })
   cedula: string;
 
-  @IsNotEmpty({ message: 'La profesión es obligatoria' })
-  @Length(2, 100, { message: 'La profesión debe tener entre 2 y 100 caracteres' })
-  @Matches(/^[^\d]*$/, { message: 'La pofesión no debe contener números' })
-  profesion: string;
+  @IsNotEmpty({ message: 'El departamento es obligatorio' })
+  @Length(3, 100, { message: 'El departamento debe tener entre 3 y 100 caracteres' })
+  @Matches(/^[^\d]*$/, { message: 'El departamento no debe contener números' })
+  departamento: string;
 
-  @IsNotEmpty({ message: 'La experiencia es obligatoria' })
-  @Length(10, 500, { message: 'La experiencia debe tener entre 10 y 500 caracteres' })
-  experiencia: string;
-
-  @IsNotEmpty({ message: 'El teléfono es obligatorio' })
-  @EsTelefonoValido({ message: 'El teléfono debe iniciar con 0414, 0424, 0416, 0426 o 0212 y estar separado por "-"' })
-  telefono: string;
+  @IsNotEmpty({ message: 'La extensión interna es obligatoria' })
+  @Length(3, 20, { message: 'La extensión debe tener entre 3 y 20 caracteres' })
+  @Matches(/^\d+$/, { message: 'La extensión solo debe contener números y no debe tener espacios ni letras' })
+  extension_interna: string;
 }

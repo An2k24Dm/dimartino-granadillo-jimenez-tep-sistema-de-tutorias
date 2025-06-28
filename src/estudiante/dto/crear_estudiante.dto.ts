@@ -1,10 +1,11 @@
-import { IsEmail, MinLength, MaxLength, IsNotEmpty, Length, IsNumber, Min, Max } from 'class-validator';
+import { Matches, IsEmail, MinLength, MaxLength, IsNotEmpty, Length, IsNumber, Min, Max } from 'class-validator';
 import { EsTelefonoValido } from '../../common/decorators/es_telefono.decorator';
 import { Type } from 'class-transformer';
 
 export class CrearEstudianteDto {
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
-  @Length(2, 100, { message: 'El nombre debe tener entre 2 y 100 caracteres' })
+  @Length(3, 100, { message: 'El nombre debe tener entre 3 y 100 caracteres' })
+  @Matches(/^[^\d]*$/, { message: 'El nombre no debe contener números' })
   nombre: string;
 
   @IsEmail({}, { message: 'El correo debe tener un formato válido' })
@@ -12,14 +13,17 @@ export class CrearEstudianteDto {
 
   @MinLength(10, { message: 'La contraseña debe tener al menos 10 caracteres' })
   @MaxLength(20, { message: 'La contraseña no debe exceder los 20 caracteres' })
+  @Matches(/^\S+$/, { message: 'La contraseña no debe contener espacios en blanco' })
   contraseña: string;
 
   @IsNotEmpty({ message: 'La cédula es obligatoria' })
   @Length(6, 20, { message: 'La cédula debe tener entre 6 y 20 caracteres' })
+  @Matches(/^\d+$/, { message: 'La cédula solo debe contener números' })
   cedula: string;
 
   @IsNotEmpty({ message: 'La carrera es obligatoria' })
   @Length(2, 100, { message: 'La carrera debe tener entre 2 y 100 caracteres' })
+  @Matches(/^[^\d]*$/, { message: 'La carrera no debe contener números' })
   carrera: string;
 
   @Type(() => Number)
