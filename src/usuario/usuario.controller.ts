@@ -25,6 +25,7 @@ export class UsuarioController {
     return { mensaje: `Usuario con ID ${id} eliminados correctamente` };
     }
 
+    @UseGuards(RolesGuard)
     @Put(':id')
     @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
     async actualizarCompleto(
