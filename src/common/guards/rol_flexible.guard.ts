@@ -37,7 +37,7 @@ export class RolFlexibleGuard implements CanActivate {
         throw new ForbiddenException(`Acceso solo permitido para: ${requiredRoles.join(', ')}`);
       }
 
-      request.usuario = payload; // Guardar el usuario para usar después
+      request.user = { userId: payload.sub, rol: payload.rol }; // Guardar el usuario para usar después
       return true;
     } catch (error) {
       throw new ForbiddenException('Token inválido o expirado');

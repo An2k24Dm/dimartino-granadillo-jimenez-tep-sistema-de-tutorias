@@ -72,6 +72,7 @@ export class EstudianteService {
 
   async actualizarPerfilEstudiante(usuarioId: number, dto: ActualizarPerfilEstudianteDto): Promise<any> {
     try {
+      console.log("SERVICE: ", usuarioId);
       const usuario = await this.usuarioRepo.findOne({ where: { id: usuarioId } }); // Buscar usuario
       if (!usuario) {
         throw new NotFoundException('Usuario no encontrado');
@@ -105,6 +106,7 @@ export class EstudianteService {
           id: usuario.id,
           nombre: usuario.nombre,
           correo: usuario.correo,
+          contraseña: usuario.contraseña,
           activo: usuario.activo,
           fecha_creacion: usuario.fecha_creacion,
         },

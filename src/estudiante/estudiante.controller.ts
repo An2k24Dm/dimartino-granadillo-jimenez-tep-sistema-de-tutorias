@@ -33,7 +33,7 @@ export class EstudianteController {
   @AllowedRoles('estudiante')
   @Put('perfil')
   async actualizarPerfilEstudiante(
-    @Req() req: any,
+    @User() usuarioPayload: { userId: number; rol: string },
     @Body(new ValidationPipe({
       transform: true,
       whitelist: true,
@@ -44,7 +44,10 @@ export class EstudianteController {
     if (!dto || Object.keys(dto).length === 0) {
       throw new BadRequestException('No se enviaron datos para actualizar');
     }
-    const usuarioId = req.usuario.id;
+
+    const usuarioId = usuarioPayload.userId;
+    console.log("CONTROLLER: ", usuarioId);
+    
     const datos = await this.estudianteService.actualizarPerfilEstudiante(usuarioId, dto);
     return {
       mensaje: 'Perfil actualizado exitosamente',
