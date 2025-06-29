@@ -63,16 +63,16 @@ export class CoordinadorService {
   }
 
   async obtenerPerfil(usuarioId: number): Promise<Coordinador> {
-    const estudiante = await this.coordinadorRepo.findOne({
+    const coordinador = await this.coordinadorRepo.findOne({
       where: { id: usuarioId },
       relations: ['usuario'], // para traer datos del usuario asociado
     });
 
-    if (!estudiante) {
+    if (!coordinador) {
       throw new NotFoundException('Token inválido. Tutor no encontrado');
     }
 
-    return estudiante;
+    return coordinador;
   }
 
   async actualizarPerfilCoordinador(usuarioId: number, dto: ActualizarPerfilCoordinadorDto): Promise<any> {

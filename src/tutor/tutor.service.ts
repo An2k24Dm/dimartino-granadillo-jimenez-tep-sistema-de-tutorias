@@ -57,16 +57,16 @@ export class TutorService {
   }
 
   async obtenerPerfil(usuarioId: number): Promise<Tutor> {
-    const estudiante = await this.tutorRepo.findOne({
+    const tutor = await this.tutorRepo.findOne({
       where: { id: usuarioId },
       relations: ['usuario'], // para traer datos del usuario asociado
     });
 
-    if (!estudiante) {
+    if (!tutor) {
       throw new NotFoundException('Token inválido. Tutor no encontrado');
     }
 
-    return estudiante;
+    return tutor;
   }
 
   async actualizarPerfilTutor(usuarioId: number, dto: ActualizarPerfilTutorDto): Promise<any> {
@@ -110,5 +110,36 @@ export class TutorService {
       console.error('Error al actualizar perfil:', error);
       throw new InternalServerErrorException('Ocurrió un error al actualizar el perfil');
     }
+  }
+
+  async verMateria(usuarioId: number): Promise<{
+    id: number;
+    nombre: string;
+    cedula: string;
+    materia: {
+      id: number;
+      nombre: string;
+      codigo: string;
+  };}> {
+    const tutor = await this.tutorRepo.findOne({
+      where: { id: usuarioId },
+      relations: ['materia', 'usuario'],
+    });
+    if (!tutor) {
+      throw new NotFoundException('Token inválido. Tutor no encontrado');
+    }
+    if (!tutor.materia) {
+      throw new NotFoundException('No tiene ninguna materia asignada');
+    }
+    return {
+      id: tutor.id,
+      nombre: tutor.usuario.nombre,
+      cedula: tutor.cedula,
+      materia: {
+        id: tutor.materia.id,
+        nombre: tutor.materia.nombre,
+        codigo: tutor.materia.codigo,
+      },
+    };
   }
 }

@@ -51,4 +51,10 @@ export class TutorController {
       datos,
     };
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('materia')
+  async verMateria(@User() usuarioPayload: { userId: number; rol: string }) {
+    return this.tutorService.verMateria(usuarioPayload.userId);
+  }
 }
