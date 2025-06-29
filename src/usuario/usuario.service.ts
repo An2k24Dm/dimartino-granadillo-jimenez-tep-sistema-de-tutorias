@@ -7,6 +7,7 @@ import { Estudiante } from '../estudiante/estudiante.entity';
 import { Tutor } from '../tutor/tutor.entity';
 import { Coordinador } from '../coordinador/coordinador.entity';
 import { ActualizarUsuarioCompletoDto } from './dto/actualizar_usuario.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuarioService {
@@ -121,7 +122,7 @@ export class UsuarioService {
         // Usuario
         if (dto.nombre) usuario.nombre = dto.nombre;
         if (dto.correo) usuario.correo = dto.correo;
-        if (dto.contraseña) usuario.contraseña = dto.contraseña;
+        if (dto.contraseña) usuario.contraseña = await bcrypt.hash(dto.contraseña, 10);
         await this.usuarioRepo.save(usuario);
 
         // Estudiante
