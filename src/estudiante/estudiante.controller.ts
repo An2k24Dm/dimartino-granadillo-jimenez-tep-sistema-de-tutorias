@@ -1,9 +1,11 @@
-import { Controller, Post, Body, ValidationPipe, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, UseGuards, Get, BadRequestException, Put, Req } from '@nestjs/common';
 import { EstudianteService } from './estudiante.service';
 import { CrearEstudianteDto } from './dto/crear_estudiante.dto';
 import { JwtAuthGuard } from '../auth/jwt_auth.guard';
 import { User } from '../common/decorators/usuario.decorator';
-
+import { ActualizarPerfilEstudianteDto } from './dto/actualizar_perfil.dto';
+import { RolFlexibleGuard } from '../common/guards/rol_flexible.guard';
+import { AllowedRoles } from '../common/decorators/roles_permitidos.decorator';
 
 @Controller('estudiante')
 export class EstudianteController {
@@ -25,5 +27,28 @@ export class EstudianteController {
   async obtenerPerfil(@User() usuarioPayload: { userId: number; rol: string }) {
     console.log(usuarioPayload);
     return this.estudianteService.obtenerPerfil(usuarioPayload.userId);
+  }
+
+  @UseGuards(RolFlexibleGuard)
+  @AllowedRoles('estudiante')
+  @Put('perfil')
+  async actualizarPerfilEstudiante(
+    @Req() req: any,
+    @Body(new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      stopAtFirstError: true,
+    })) dto: ActualizarPerfilEstudianteDto,
+  ) {
+    if (!dto || Object.keys(dto).length === 0) {
+      throw new BadRequestException('No se enviaron datos para actualizar');
+    }
+    const usuarioId = req.usuario.id;
+    const datos = await this.estudianteService.actualizarPerfilEstudiante(usuarioId, dto);
+    return {
+      mensaje: 'Perfil actualizado exitosamente',
+      datos,
+    };
   }
 }

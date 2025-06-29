@@ -1,11 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Estudiante } from './estudiante.entity';
 import { CrearEstudianteDto } from './dto/crear_estudiante.dto';
 import { Usuario } from '../usuario/usuario.entity';
 import * as bcrypt from 'bcrypt';
-import { DataSource } from 'typeorm'; // Asegúrate de inyectarlo si quieres usar transacciones
+import { DataSource } from 'typeorm';
+import { ActualizarPerfilEstudianteDto } from './dto/actualizar_perfil.dto';
 
 @Injectable()
 export class EstudianteService {
@@ -63,9 +64,56 @@ export class EstudianteService {
     });
 
     if (!estudiante) {
-      throw new NotFoundException('Estudiante no encontrado');
+      throw new NotFoundException('Token inválido. Estudiante no encontrado');
     }
 
     return estudiante;
+  }
+
+  async actualizarPerfilEstudiante(usuarioId: number, dto: ActualizarPerfilEstudianteDto): Promise<any> {
+    try {
+      const usuario = await this.usuarioRepo.findOne({ where: { id: usuarioId } }); // Buscar usuario
+      if (!usuario) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      const estudiante = await this.estudianteRepo.findOne({ where: { id: usuarioId } }); // Buscar estudiante
+      if (!estudiante) {
+        throw new NotFoundException('Estudiante no encontrado');
+      }
+
+      // Campos de usuario
+      if (dto.nombre) usuario.nombre = dto.nombre;
+      if (dto.correo) usuario.correo = dto.correo;
+
+      if (dto.contraseña) {
+        usuario.contraseña = await bcrypt.hash(dto.contraseña, 10);
+      }
+
+      await this.usuarioRepo.save(usuario);
+
+      // Campos de estudiante
+      if (dto.cedula) estudiante.cedula = dto.cedula;
+      if (dto.carrera) estudiante.carrera = dto.carrera;
+      if (dto.semestre) estudiante.semestre = dto.semestre;
+      if (dto.telefono) estudiante.telefono = dto.telefono;
+
+      await this.estudianteRepo.save(estudiante);
+
+      return {
+        usuario: {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          correo: usuario.correo,
+          activo: usuario.activo,
+          fecha_creacion: usuario.fecha_creacion,
+        },
+        estudiante,
+      };
+
+    } catch (error) {
+      console.error('Error al actualizar perfil:', error);
+      throw new InternalServerErrorException('Ocurrió un error al actualizar el perfil');
+    }
   }
 }

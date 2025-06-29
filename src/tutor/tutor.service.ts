@@ -62,7 +62,7 @@ export class TutorService {
     });
 
     if (!estudiante) {
-      throw new NotFoundException('Tutor no encontrado');
+      throw new NotFoundException('Token inválido. Tutor no encontrado');
     }
 
     return estudiante;
