@@ -1,10 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Tutor } from './tutor.entity';
 import { CrearTutorDto } from './dto/crear_tutor.dto';
 import { Usuario } from '../usuario/usuario.entity';
 import * as bcrypt from 'bcrypt';
+import { ActualizarPerfilTutorDto } from '../tutor/dto/actualizar_perfil.dto';
 
 @Injectable()
 export class TutorService {
@@ -66,5 +67,48 @@ export class TutorService {
     }
 
     return estudiante;
+  }
+
+  async actualizarPerfilTutor(usuarioId: number, dto: ActualizarPerfilTutorDto): Promise<any> {
+    try {
+      const usuario = await this.usuarioRepo.findOne({ where: { id: usuarioId } });
+      if (!usuario) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+      
+      const tutor = await this.tutorRepo.findOne({ where: { id: usuarioId } });
+      if (!tutor) {
+        throw new NotFoundException('Tutor no encontrado');
+      }
+
+      if (dto.nombre) usuario.nombre = dto.nombre;
+      if (dto.contraseña) {
+        usuario.contraseña = await bcrypt.hash(dto.contraseña, 10);
+      }
+
+      await this.usuarioRepo.save(usuario);
+
+      if (dto.cedula) tutor.cedula = dto.cedula;
+      if (dto.profesion) tutor.profesion = dto.profesion;
+      if (dto.experiencia) tutor.experiencia = dto.experiencia;
+      if (dto.telefono) tutor.telefono = dto.telefono;
+
+      await this.tutorRepo.save(tutor);
+
+      return {
+        usuario: {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          correo: usuario.correo,
+          contraseña: usuario.contraseña,
+          activo: usuario.activo,
+          fecha_creacion: usuario.fecha_creacion,
+        },
+        tutor,
+      };
+    } catch (error) {
+      console.error('Error al actualizar perfil:', error);
+      throw new InternalServerErrorException('Ocurrió un error al actualizar el perfil');
+    }
   }
 }

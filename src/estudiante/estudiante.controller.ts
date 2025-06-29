@@ -1,4 +1,4 @@
-import { Controller, Post, Body, ValidationPipe, UseGuards, Get, BadRequestException, Put, Req } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, UseGuards, Get, BadRequestException, Put } from '@nestjs/common';
 import { EstudianteService } from './estudiante.service';
 import { CrearEstudianteDto } from './dto/crear_estudiante.dto';
 import { JwtAuthGuard } from '../auth/jwt_auth.guard';
@@ -44,10 +44,7 @@ export class EstudianteController {
     if (!dto || Object.keys(dto).length === 0) {
       throw new BadRequestException('No se enviaron datos para actualizar');
     }
-
     const usuarioId = usuarioPayload.userId;
-    console.log("CONTROLLER: ", usuarioId);
-    
     const datos = await this.estudianteService.actualizarPerfilEstudiante(usuarioId, dto);
     return {
       mensaje: 'Perfil actualizado exitosamente',

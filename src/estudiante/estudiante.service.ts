@@ -72,12 +72,10 @@ export class EstudianteService {
 
   async actualizarPerfilEstudiante(usuarioId: number, dto: ActualizarPerfilEstudianteDto): Promise<any> {
     try {
-      console.log("SERVICE: ", usuarioId);
       const usuario = await this.usuarioRepo.findOne({ where: { id: usuarioId } }); // Buscar usuario
       if (!usuario) {
         throw new NotFoundException('Usuario no encontrado');
       }
-
       const estudiante = await this.estudianteRepo.findOne({ where: { id: usuarioId } }); // Buscar estudiante
       if (!estudiante) {
         throw new NotFoundException('Estudiante no encontrado');
@@ -86,11 +84,9 @@ export class EstudianteService {
       // Campos de usuario
       if (dto.nombre) usuario.nombre = dto.nombre;
       if (dto.correo) usuario.correo = dto.correo;
-
       if (dto.contraseña) {
         usuario.contraseña = await bcrypt.hash(dto.contraseña, 10);
       }
-
       await this.usuarioRepo.save(usuario);
 
       // Campos de estudiante
@@ -98,9 +94,7 @@ export class EstudianteService {
       if (dto.carrera) estudiante.carrera = dto.carrera;
       if (dto.semestre) estudiante.semestre = dto.semestre;
       if (dto.telefono) estudiante.telefono = dto.telefono;
-
       await this.estudianteRepo.save(estudiante);
-
       return {
         usuario: {
           id: usuario.id,
@@ -112,7 +106,6 @@ export class EstudianteService {
         },
         estudiante,
       };
-
     } catch (error) {
       console.error('Error al actualizar perfil:', error);
       throw new InternalServerErrorException('Ocurrió un error al actualizar el perfil');
