@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, InternalServerErrorException, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Coordinador } from './coordinador.entity';
@@ -6,6 +6,9 @@ import { CrearCoordinadorDto } from './dto/crear_coordinador.dto';
 import { Usuario } from '../usuario/usuario.entity';
 import * as bcrypt from 'bcrypt';
 import { ActualizarPerfilCoordinadorDto } from '../coordinador/dto/actualizar_coordinador.dto';
+import { AsignarMateriaTutorDto } from '../coordinador/dto/asignar_materia.dto';
+import { Tutor } from '../tutor/tutor.entity';
+import { Materia } from '../materia/materia.entity';
 
 @Injectable()
 export class CoordinadorService {
@@ -15,6 +18,10 @@ export class CoordinadorService {
     @InjectRepository(Usuario)
     private readonly usuarioRepo: Repository<Usuario>,
     private readonly dataSource: DataSource,
+    @InjectRepository(Tutor)
+    private readonly tutorRepo: Repository<Tutor>,
+    @InjectRepository(Materia)
+    private readonly materiaRepo: Repository<Materia>,
   ) {}
 
   async crear(dto: CrearCoordinadorDto): Promise<Coordinador> {
@@ -108,6 +115,52 @@ export class CoordinadorService {
     } catch (error) {
       console.error('Error al actualizar perfil coordinador:', error);
       throw new InternalServerErrorException('Ocurrió un error al actualizar el perfil');
+    }
+  }
+
+  async asignarMateriaATutor(dto: AsignarMateriaTutorDto): Promise<any> {
+    try {
+      const tutor = await this.tutorRepo.findOne({ where: { cedula: dto.cedula }, relations: ['materia', 'usuario'] });
+      if (!tutor) {
+        throw new NotFoundException('Tutor no encontrado. Verifique que la cedula le pertenezca a un Tutor.');
+      }
+
+      if (tutor.materia) {
+        throw new ConflictException('El tutor ya tiene una materia asignada');
+      }
+
+      const materia = await this.materiaRepo.findOne({ where: { codigo: dto.codigoMateria } });
+      if (!materia) {
+        throw new NotFoundException('Materia no encontrada con el código proporcionado');
+      }
+
+      if (tutor.materia && (tutor.materia as Materia).id === materia.id) {
+        throw new ConflictException('El tutor ya tiene asignada esta materia');
+      }
+
+      tutor.materia = materia;
+      await this.tutorRepo.save(tutor);
+      return {
+        mensaje: `Materia "${materia.nombre}" asignada exitosamente al tutor "${tutor.usuario.nombre}"`,
+        tutor: {
+          id: tutor.id,
+          nombre: tutor.usuario.nombre,
+          cedula: tutor.cedula,
+          materia: {
+            id: materia.id,
+            nombre: materia.nombre,
+            codigo: materia.codigo,
+          },
+        },
+      };
+    } catch (error) {
+      console.error('Error al asignar materia:', error);
+      // Si ya es una excepción controlada (NotFoundException, ConflictException, etc.), la relanzamos tal cual
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      // Si es otro error inesperado, devolvemos error 500
+      throw new InternalServerErrorException('Ocurrió un error al asignar la materia');
     }
   }
 }

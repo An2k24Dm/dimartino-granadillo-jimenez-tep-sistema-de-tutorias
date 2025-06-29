@@ -6,6 +6,7 @@ import { User } from '../common/decorators/usuario.decorator';
 import { ActualizarPerfilCoordinadorDto } from '../coordinador/dto/actualizar_coordinador.dto';
 import { RolFlexibleGuard } from '../common/guards/rol_flexible.guard';
 import { AllowedRoles } from '../common/decorators/roles_permitidos.decorator';
+import { AsignarMateriaTutorDto } from '../coordinador/dto/asignar_materia.dto';
 
 @Controller('coordinador')
 export class CoordinadorController {
@@ -50,5 +51,20 @@ export class CoordinadorController {
       mensaje: 'Perfil actualizado exitosamente',
       datos,
     };
+  }
+
+  @UseGuards(RolFlexibleGuard)
+  @AllowedRoles('coordinador')
+  @Post('asignar-materia')
+  async asignarMateriaATutor(
+    @Body(new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      stopAtFirstError: true,
+    })) dto: AsignarMateriaTutorDto,
+  ) {
+    const resultado = await this.coordinadorService.asignarMateriaATutor(dto);
+    return resultado;
   }
 }
