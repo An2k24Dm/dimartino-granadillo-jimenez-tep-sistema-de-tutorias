@@ -32,7 +32,7 @@ export class TutorController {
   @UseGuards(RolFlexibleGuard)
   @AllowedRoles('tutor')
   @Put('perfil')
-  async actualizarPerfilEstudiante(
+  async actualizarPerfilTutor(
     @User() usuarioPayload: { userId: number; rol: string },
     @Body(new ValidationPipe({
       transform: true,

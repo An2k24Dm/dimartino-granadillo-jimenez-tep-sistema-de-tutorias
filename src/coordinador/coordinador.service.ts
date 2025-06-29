@@ -1,10 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Coordinador } from './coordinador.entity';
 import { CrearCoordinadorDto } from './dto/crear_coordinador.dto';
 import { Usuario } from '../usuario/usuario.entity';
 import * as bcrypt from 'bcrypt';
+import { ActualizarPerfilCoordinadorDto } from '../coordinador/dto/actualizar_coordinador.dto';
 
 @Injectable()
 export class CoordinadorService {
@@ -53,6 +54,7 @@ export class CoordinadorService {
       await queryRunner.release();
     }
   }
+
   async obtenerPerfil(usuarioId: number): Promise<Coordinador> {
     const estudiante = await this.coordinadorRepo.findOne({
       where: { id: usuarioId },
@@ -64,5 +66,48 @@ export class CoordinadorService {
     }
 
     return estudiante;
+  }
+
+  async actualizarPerfilCoordinador(usuarioId: number, dto: ActualizarPerfilCoordinadorDto): Promise<any> {
+    try {
+      const usuario = await this.usuarioRepo.findOne({ where: { id: usuarioId } });
+      if (!usuario) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      const coordinador = await this.coordinadorRepo.findOne({ where: { id: usuarioId } });
+      if (!coordinador) {
+        throw new NotFoundException('Coordinador no encontrado');
+      }
+
+      if (dto.nombre) usuario.nombre = dto.nombre;
+      if (dto.correo) usuario.correo = dto.correo;
+      if (dto.contraseña) {
+        usuario.contraseña = await bcrypt.hash(dto.contraseña, 10);
+      }
+
+      await this.usuarioRepo.save(usuario);
+
+      if (dto.cedula) coordinador.cedula = dto.cedula;
+      if (dto.departamento) coordinador.departamento = dto.departamento;
+      if (dto.extension_interna) coordinador.extension_interna = dto.extension_interna;
+
+      await this.coordinadorRepo.save(coordinador);
+
+      return {
+        usuario: {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          correo: usuario.correo,
+          contraseña: usuario.contraseña,
+          activo: usuario.activo,
+          fecha_creacion: usuario.fecha_creacion,
+        },
+        coordinador,
+      };
+    } catch (error) {
+      console.error('Error al actualizar perfil coordinador:', error);
+      throw new InternalServerErrorException('Ocurrió un error al actualizar el perfil');
+    }
   }
 }
