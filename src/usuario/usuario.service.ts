@@ -6,6 +6,7 @@ import { Usuario } from './usuario.entity';
 import { Estudiante } from '../estudiante/estudiante.entity';
 import { Tutor } from '../tutor/tutor.entity';
 import { Coordinador } from '../coordinador/coordinador.entity';
+import { ActualizarUsuarioCompletoDto } from './dto/actualizar_usuario.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -108,5 +109,53 @@ export class UsuarioService {
             }
                 throw new InternalServerErrorException('Error al eliminar el usuario y sus datos asociados');
         }
+    }
+
+    async actualizarUsuarioCompleto(id: number, dto: ActualizarUsuarioCompletoDto): Promise<any> {
+        const usuario = await this.usuarioRepo.findOne({ where: { id } });
+
+        if (!usuario) {
+            throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+        }
+
+        // Usuario
+        if (dto.nombre) usuario.nombre = dto.nombre;
+        if (dto.correo) usuario.correo = dto.correo;
+        if (dto.contraseña) usuario.contraseña = dto.contraseña;
+        await this.usuarioRepo.save(usuario);
+
+        // Estudiante
+        const estudiante = await this.estudianteRepo.findOne({ where: { id } });
+        if (estudiante) {
+            if (dto.cedula) estudiante.cedula = dto.cedula;
+            if (dto.carrera) estudiante.carrera = dto.carrera;
+            if (dto.semestre) estudiante.semestre = dto.semestre;
+            if (dto.telefono) estudiante.telefono = dto.telefono;
+            await this.estudianteRepo.save(estudiante);
+            return { usuario, estudiante };
+        }
+
+        // Coordinador
+        const coordinador = await this.coordinadorRepo.findOne({ where: { id } });
+        if (coordinador) {
+            if (dto.cedula) coordinador.cedula = dto.cedula;
+            if (dto.departamento) coordinador.departamento = dto.departamento;
+            if (dto.extension_interna) coordinador.extension_interna = dto.extension_interna;
+            await this.coordinadorRepo.save(coordinador);
+            return { usuario, coordinador };
+        }
+
+        // Tutor
+        const tutor = await this.tutorRepo.findOne({ where: { id } });
+        if (tutor) {
+            if (dto.cedula) tutor.cedula = dto.cedula;
+            if (dto.profesion) tutor.profesion = dto.profesion;
+            if (dto.experiencia) tutor.experiencia = dto.experiencia;
+            if (dto.telefono) tutor.telefono = dto.telefono;
+            await this.tutorRepo.save(tutor);
+            return { usuario, tutor };
+        }
+
+        return { usuario };
     }
 }
