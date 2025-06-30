@@ -108,7 +108,7 @@ export class UsuarioService {
             if (error instanceof NotFoundException) {
                 throw error;
             }
-                throw new InternalServerErrorException('Error al eliminar el usuario y sus datos asociados');
+            throw new InternalServerErrorException('Error al eliminar el usuario y sus datos asociados');
         }
     }
 
