@@ -23,7 +23,7 @@ export class Tutor {
   @Column({ length: 20 })
   telefono: string;
 
-  @ManyToOne(() => Materia)
+  @ManyToOne(() => Materia, { nullable: true }) //relacion parcial del lado de tutor
   @JoinColumn({ name: 'materia_id' })
-  materia: Materia;
+  materia?: Materia;
 }
