@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, ConflictException  } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tutor } from '../tutor/tutor.entity';
 import { Usuario } from '../usuario/usuario.entity';
 import { Materia } from './materia.entity';
 import { Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
+import { CrearMateriaDto } from './dto/crear_materia.dto';
 
 @Injectable()
 export class MateriaService {
@@ -60,6 +61,23 @@ export class MateriaService {
             }
             console.error('Error al eliminar materia:', error);
             throw new InternalServerErrorException('Error al eliminar la materia');
+        }
+    }
+
+    async crear(dto: CrearMateriaDto): Promise<Materia> {
+        try {
+            const existe = await this.materiaRepo.findOne({ where: { codigo: dto.codigo } }); // Verificar que no exista una materia con el mismo código
+            if (existe) {
+                throw new ConflictException(`Ya existe una materia con el código "${dto.codigo}"`);
+            }
+            const nuevaMateria = this.materiaRepo.create(dto);
+            return await this.materiaRepo.save(nuevaMateria);
+        } catch (error) {
+            if (error instanceof ConflictException) {
+                throw error;
+            }
+            console.error('Error al crear materia:', error);
+            throw new InternalServerErrorException('Ocurrió un error al crear la materia');
         }
     }
 }

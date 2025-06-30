@@ -1,4 +1,5 @@
-import { Controller, Get, Delete, Param, ParseIntPipe, BadRequestException, UseGuards, Put, Body, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Delete, Param, ParseIntPipe, BadRequestException, UseGuards, Put, Body, UsePipes, ValidationPipe, Post } from '@nestjs/common';
+import { CrearMateriaDto } from './dto/crear_materia.dto';
 import { MateriaService } from './materia.service';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Materia } from './materia.entity';
@@ -22,5 +23,22 @@ export class MateriaController {
     ): Promise<{ mensaje: string }> {
         await this.materiaService.eliminarMateria(id);
     return { mensaje: `Materia con ID ${id} eliminada correctamente` };
+    }
+
+    @UseGuards(RolesGuard)
+    @Post('crear')
+    async crearMateria(
+    @Body(new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        stopAtFirstError: true,
+    })) dto: CrearMateriaDto
+    ) {
+    const materia = await this.materiaService.crear(dto);
+    return {
+        mensaje: 'Materia creada exitosamente',
+        materia,
+    };
     }
 }
