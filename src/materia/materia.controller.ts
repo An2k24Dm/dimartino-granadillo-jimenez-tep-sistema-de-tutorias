@@ -3,6 +3,7 @@ import { CrearMateriaDto } from './dto/crear_materia.dto';
 import { MateriaService } from './materia.service';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Materia } from './materia.entity';
+import { ActualizarMateriaDto } from './dto/actualizar_materia.dto';
 
 @Controller('materia')
 export class MateriaController {
@@ -40,5 +41,23 @@ export class MateriaController {
         mensaje: 'Materia creada exitosamente',
         materia,
     };
+    }
+
+    @UseGuards(RolesGuard)
+    @Put(':id')
+    async actualizarMateria(
+        @Param('id', ParseIntPipe) id: number,
+        @Body(new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        stopAtFirstError: true,
+        })) dto: ActualizarMateriaDto,
+    ) {
+        const materia = await this.materiaService.actualizar(id, dto);
+        return {
+            mensaje: 'Materia actualizada exitosamente',
+            materia,
+        };
     }
 }

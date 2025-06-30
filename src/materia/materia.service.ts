@@ -6,6 +6,7 @@ import { Materia } from './materia.entity';
 import { Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
 import { CrearMateriaDto } from './dto/crear_materia.dto';
+import { ActualizarMateriaDto } from './dto/actualizar_materia.dto';
 
 @Injectable()
 export class MateriaService {
@@ -78,6 +79,35 @@ export class MateriaService {
             }
             console.error('Error al crear materia:', error);
             throw new InternalServerErrorException('Ocurrió un error al crear la materia');
+        }
+    }
+
+    async actualizar(id: number, dto: ActualizarMateriaDto): Promise<Materia> {
+        try {
+            const materia = await this.materiaRepo.findOne({ where: { id } });
+            if (!materia) {
+                throw new NotFoundException(`Materia con ID ${id} no encontrada`);
+            }
+
+            if (dto.codigo && dto.codigo !== materia.codigo) {
+                const materiaExistente = await this.materiaRepo.findOne({ where: { codigo: dto.codigo } });
+                if (materiaExistente && materiaExistente.id !== id) {
+                    throw new ConflictException('El código ya está registrado en otra materia');
+                }
+            }
+
+            if (dto.nombre) materia.nombre = dto.nombre;
+            if (dto.codigo) materia.codigo = dto.codigo;
+            return await this.materiaRepo.save(materia);
+        } catch (error) {
+            if (error instanceof ConflictException) {
+                throw error;
+            }
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            console.error('Error al actualizar la materia:', error);
+            throw new InternalServerErrorException('Ocurrió un error al actualizar la materia');
         }
     }
 }
