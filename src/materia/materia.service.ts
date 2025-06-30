@@ -31,4 +31,35 @@ export class MateriaService {
             throw new InternalServerErrorException('Ocurrió un error al obtener las materias');
         }
     }
+
+    async eliminarMateria(id: number): Promise<void> {
+        try {
+            await this.dataSource.transaction(async (manager) => {
+                const materia = await manager.findOne(Materia, { where: { id } });
+                if (!materia) {
+                    throw new NotFoundException(`Materia con ID ${id} no encontrada`);
+                }
+                const tutor = await manager.findOne(Tutor, { // Verificar si algún tutor tiene asignada esta materia
+                    where: { materia: { id } },
+                    relations: ['materia'],
+                });
+
+                if (tutor) {
+                    tutor.materia = undefined; // Quitar la relación de materia del tutor
+                    await manager.save(Tutor, tutor);
+                }
+
+                const result = await manager.delete(Materia, id); // Eliminar la materia
+                if (result.affected === 0) {
+                    throw new NotFoundException(`Materia con ID ${id} no encontrada al eliminar`);
+                }
+            });
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            console.error('Error al eliminar materia:', error);
+            throw new InternalServerErrorException('Error al eliminar la materia');
+        }
+    }
 }
