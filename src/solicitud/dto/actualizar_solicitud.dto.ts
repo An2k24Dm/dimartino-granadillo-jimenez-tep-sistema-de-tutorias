@@ -27,38 +27,4 @@ export class ActualizarSolicitudDto {
     @IsOptional()
     @IsString()
     readonly hora_solicitada?: string;
-
-    /**
-     * Estado de la solicitud.
-     */
-    @IsOptional()
-    @IsString()
-    @MaxLength(50)
-    readonly estado?: string;
-
-    /**
-     * ID del estudiante que realiza la solicitud.
-     * Debe ser un número entero y positivo.
-     */
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    readonly estudianteId?: number;
-
-    /**
-     * ID de la materia para la cual se solicita la tutoría.
-     * Debe ser un número entero y positivo.
-     */
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    readonly materiaId?: number;
-
-    /**
-     * ID del tutor asignado.
-     */
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    readonly tutorId?: number;
 }

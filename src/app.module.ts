@@ -9,6 +9,8 @@ import { EstudianteModule } from './estudiante/estudiante.module';
 import { TutorModule } from './tutor/tutor.module';
 import { CoordinadorModule } from './coordinador/coordinador.module';
 import { MateriaModule } from './materia/materia.module';
+import { SolicitudModule } from './solicitud/solicitud.module';
+import { SesionModule } from './sesion/sesion.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { MateriaModule } from './materia/materia.module';
     TutorModule,
     CoordinadorModule,
     MateriaModule,
+    SolicitudModule,
+    SesionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

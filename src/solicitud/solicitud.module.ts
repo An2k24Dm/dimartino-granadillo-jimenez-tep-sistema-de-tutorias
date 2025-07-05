@@ -6,21 +6,22 @@ import { SolicitudController } from './solicitud.controller';
 import { Estudiante } from '../estudiante/estudiante.entity';
 import { Tutor } from '../tutor/tutor.entity';
 import { Materia } from '../materia/materia.entity';
+import { Sesion } from '../sesion/sesion.entity';
+import { AuthModule } from '../auth/auth.module'; // Importa el módulo de autenticación
 
 @Module({
   imports: [
-    // Importa las entidades que se usarán dentro de este módulo.
-    // TypeORM creará los Repositories para ellas y podrán ser inyectados.
+    AuthModule,
     TypeOrmModule.forFeature([
       Solicitud, 
       Estudiante, 
       Tutor, 
-      Materia
+      Materia,
+      Sesion
     ]),
   ],
-  // Declara los servicios que pertenecen a este módulo.
   providers: [SolicitudService],
-  // Declara los controladores que manejarán las rutas de este módulo.
-  controllers: [SolicitudController]
+  controllers: [SolicitudController],
+  exports: [SolicitudService], 
 })
 export class SolicitudModule {}
