@@ -11,6 +11,7 @@ import { CrearSolicitudDto } from '../solicitud/dto/crear_solicitud.dto';
 import { Materia } from '../materia/materia.entity'; 
 import { Tutor } from 'src/tutor/tutor.entity';
 import { Sesion } from '../sesion/sesion.entity';
+import { Usuario } from 'src/usuario/usuario.entity';
 
 @Injectable()
 export class SolicitudService {
@@ -49,12 +50,27 @@ async createSolicitud(
 
   const assignedMateria = tutor.materia;
 
+  // Validar si ya existe una solicitud
+  const existingSolicitud = await this.solicitudRepository.findOne({
+    where: {
+      estudiante: { id: estudianteId },
+      tutor: { id: tutor.id },
+      fechaSolicitada: new Date(fechaSolicitada),
+    },
+  });
+
+  if (existingSolicitud) {
+    throw new BadRequestException(
+      `Ya existe una solicitud para este estudiante con ese tutor, el día ${fechaSolicitada}.`,
+    );
+  }
+
   // Crear solicitud
   const newSolicitud = this.solicitudRepository.create({
-    estudiante: { id: estudianteId }, // Usamos objeto para asociar
+    estudiante: { id: estudianteId }, 
     materia: { id: assignedMateria.id },
     fechaSolicitada: new Date(fechaSolicitada),
-    horaSolicitada: horaSolicitada, // tipo string si usas 'time'
+    horaSolicitada: horaSolicitada, 
     estado: 'Pendiente',
     tutor: { id: tutor.id },
   });
@@ -75,7 +91,7 @@ if (!solicitudWithRelations) {
   async findSolicitudesAsignadasTutor(tutorId: number): Promise<Solicitud[]> {
     return this.solicitudRepository.find({
       where: { tutorId: tutorId },
-      relations: ['estudiante', 'materia'], // Load related student and materia data
+      relations: ['estudiante', 'materia'], 
     });
   }
 
