@@ -114,66 +114,66 @@ export class SolicitudService {
         console.log(`Solicitud con ID #${id} eliminada correctamente.`);
     }
 
-async createSolicitud(
-  crearSolicitudDto: CrearSolicitudDto,
-  estudianteId: number,
-): Promise<Solicitud> {
-  const { fecha_solicitada, hora_solicitada, cedulaTutor } = crearSolicitudDto;
+  async createSolicitud(
+    crearSolicitudDto: CrearSolicitudDto,
+    estudianteId: number,
+  ): Promise<Solicitud> {
+    const { fecha_solicitada, hora_solicitada, cedulaTutor } = crearSolicitudDto;
 
-  // Buscar tutor
-  const tutor = await this.tutorRepository.findOne({
-    where: { cedula: cedulaTutor },
-    relations: ['materia'],
-  });
+    // Buscar tutor
+    const tutor = await this.tutorRepository.findOne({
+      where: { cedula: cedulaTutor },
+      relations: ['materia'],
+    });
 
-  if (!tutor) {
-    throw new NotFoundException(`Tutor con cédula ${cedulaTutor} no encontrado.`);
-  }
+    if (!tutor) {
+      throw new NotFoundException(`Tutor con cédula ${cedulaTutor} no encontrado.`);
+    }
 
-  if (!tutor.materia) {
-    throw new BadRequestException(
-      `El tutor con cédula ${cedulaTutor} no tiene materias asignadas y no puede recibir solicitudes.`,
-    );
-  }
+    if (!tutor.materia) {
+      throw new BadRequestException(
+        `El tutor con cédula ${cedulaTutor} no tiene materias asignadas y no puede recibir solicitudes.`,
+      );
+    }
 
-  const assignedMateria = tutor.materia;
+    const assignedMateria = tutor.materia;
 
-  // Validar si ya existe una solicitud
-  const existingSolicitud = await this.solicitudRepository.findOne({
-    where: {
-      estudiante: { id: estudianteId },
-      tutor: { id: tutor.id },
+    // Validar si ya existe una solicitud
+    const existingSolicitud = await this.solicitudRepository.findOne({
+      where: {
+        estudiante: { id: estudianteId },
+        tutor: { id: tutor.id },
+        fecha_solicitada: new Date(fecha_solicitada).toISOString().split('T')[0], 
+      },
+    });
+
+    if (existingSolicitud) {
+      throw new BadRequestException(
+        `Ya existe una solicitud para este estudiante con ese tutor, el día ${fecha_solicitada}.`,
+      );
+    }
+
+    // Crear solicitud
+    const newSolicitud = this.solicitudRepository.create({
+      estudiante: { id: estudianteId }, 
+      materia: { id: assignedMateria.id },
       fecha_solicitada: new Date(fecha_solicitada).toISOString().split('T')[0], 
-    },
-  });
+      hora_solicitada: hora_solicitada, 
+      estado: 'Pendiente',
+      tutor: { id: tutor.id },
+    });
 
-  if (existingSolicitud) {
-    throw new BadRequestException(
-      `Ya existe una solicitud para este estudiante con ese tutor, el día ${fecha_solicitada}.`,
-    );
+    const savedSolicitud = await this.solicitudRepository.save(newSolicitud);
+
+    // Recargar con relaciones para traer nombres
+    const solicitudWithRelations = await this.solicitudRepository.findOne({
+      where: { id: savedSolicitud.id },
+      relations: ['estudiante', 'tutor', 'materia'],
+    });
+  if (!solicitudWithRelations) {
+    throw new NotFoundException(`Solicitud con ID ${savedSolicitud.id} no encontrada al recargar.`);
   }
-
-  // Crear solicitud
-  const newSolicitud = this.solicitudRepository.create({
-    estudiante: { id: estudianteId }, 
-    materia: { id: assignedMateria.id },
-    fecha_solicitada: new Date(fecha_solicitada).toISOString().split('T')[0], 
-    hora_solicitada: hora_solicitada, 
-    estado: 'Pendiente',
-    tutor: { id: tutor.id },
-  });
-
-  const savedSolicitud = await this.solicitudRepository.save(newSolicitud);
-
-  // Recargar con relaciones para traer nombres
-  const solicitudWithRelations = await this.solicitudRepository.findOne({
-    where: { id: savedSolicitud.id },
-    relations: ['estudiante', 'tutor', 'materia'],
-  });
-if (!solicitudWithRelations) {
-  throw new NotFoundException(`Solicitud con ID ${savedSolicitud.id} no encontrada al recargar.`);
-}
-  return solicitudWithRelations;
+    return solicitudWithRelations;
 }
 
   async findSolicitudesAsignadasTutor(tutorId: number): Promise<Solicitud[]> {
