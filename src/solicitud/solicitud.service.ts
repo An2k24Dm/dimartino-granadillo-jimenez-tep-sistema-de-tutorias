@@ -113,7 +113,6 @@ export class SolicitudService {
         await this.solicitudRepository.remove(solicitud);
         console.log(`Solicitud con ID #${id} eliminada correctamente.`);
     }
-// solicitud.service.ts
 
 async createSolicitud(
   crearSolicitudDto: CrearSolicitudDto,
@@ -158,7 +157,7 @@ async createSolicitud(
   const newSolicitud = this.solicitudRepository.create({
     estudiante: { id: estudianteId }, 
     materia: { id: assignedMateria.id },
-    fecha_solicitada: new Date(fecha_solicitada).toISOString().split('T')[0], // Ensure string format 'YYYY-MM-DD'
+    fecha_solicitada: new Date(fecha_solicitada).toISOString().split('T')[0], 
     hora_solicitada: hora_solicitada, 
     estado: 'Pendiente',
     tutor: { id: tutor.id },

@@ -7,7 +7,7 @@ import { Estudiante } from '../estudiante/estudiante.entity';
 import { Tutor } from '../tutor/tutor.entity';
 import { Materia } from '../materia/materia.entity';
 import { Sesion } from '../sesion/sesion.entity';
-import { AuthModule } from '../auth/auth.module'; // Importa el módulo de autenticación
+import { AuthModule } from '../auth/auth.module'; 
 
 @Module({
   imports: [
