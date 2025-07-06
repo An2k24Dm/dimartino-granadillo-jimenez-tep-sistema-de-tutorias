@@ -82,19 +82,27 @@ export class SolicitudService {
     /**
      * Actualiza una solicitud existente por su ID.
      */
-
     async update(id: number, actualizarSolicitudDto: ActualizarSolicitudDto): Promise<Solicitud> {
-        const solicitud = await this.findOne(id);
+      const solicitud = await this.findOne(id);
+      const { fecha_solicitada, hora_solicitada } = actualizarSolicitudDto;
 
-        const {fecha_solicitada, hora_solicitada} = actualizarSolicitudDto;
-        if (!fecha_solicitada && !hora_solicitada) {
-            throw new BadRequestException('Debe proporcionar al menos una fecha o hora para actualizar la solicitud.');
-        } else if (solicitud.estado !== 'Pendiente') {
-            throw new BadRequestException('No se puede actualizar una solicitud que no está en estado Pendiente.');
+      if (!fecha_solicitada && !hora_solicitada) {
+        throw new BadRequestException('Debe proporcionar al menos una fecha u hora para actualizar la solicitud.');
+      }
+
+      if (solicitud.estado !== 'Pendiente') {
+        throw new BadRequestException('No se puede actualizar una solicitud que no está en estado Pendiente.');
+      }
+
+      if (fecha_solicitada) {
+        const parsedDate = new Date(fecha_solicitada);
+        if (isNaN(parsedDate.getTime())) {
+          throw new BadRequestException(`La fecha proporcionada no es válida: ${fecha_solicitada}`);
         }
-        this.solicitudRepository.merge(solicitud, actualizarSolicitudDto);
+      }
 
-        return this.solicitudRepository.save(solicitud);
+      this.solicitudRepository.merge(solicitud, actualizarSolicitudDto);
+      return this.solicitudRepository.save(solicitud);
     }
 
     /**

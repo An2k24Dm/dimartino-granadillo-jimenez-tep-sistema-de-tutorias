@@ -3,8 +3,7 @@ import { Estudiante } from '../estudiante/estudiante.entity';
 import { Tutor } from '../tutor/tutor.entity';
 import { Materia } from '../materia/materia.entity';
 
-
-@Entity('solicitudes') // Es una buena práctica nombrar las tablas en plural
+@Entity('solicitud')
 export class Solicitud {
     @PrimaryGeneratedColumn()
     id: number;

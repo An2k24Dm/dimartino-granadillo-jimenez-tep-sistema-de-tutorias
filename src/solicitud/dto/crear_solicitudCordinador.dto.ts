@@ -1,48 +1,23 @@
-import{
-  IsDateString,
-  IsInt,
-  IsOptional,
-  IsPositive,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsInt, IsOptional, IsPositive, IsString, IsDateString, Matches } from 'class-validator';
 
-/**
- * Define la estructura de datos y las reglas de validación
- * para crear una nueva solicitud.
- */
 export class CrearSolicitudCordinadorDto {
-
-  
-  @IsDateString()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'La fecha solicitada debe tener formato yyyy-MM-dd.' })
+  @IsDateString({}, { message: 'La fecha solicitada debe ser una fecha válida.' })
   readonly fecha_solicitada: string;
 
-  @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: 'La hora solicitada debe tener formato HH:mm.' })
   readonly hora_solicitada: string;
 
-  // ... otros campos ...
-
-  /**
-   * ID del estudiante que realiza la solicitud.
-   * Debe ser un número entero y positivo.
-   */
-  @IsInt() // Correcto para recibir números
-  @IsPositive()
+  @IsInt({ message: 'El ID de estudiante debe ser un número entero.' })
+  @IsPositive({ message: 'El ID de estudiante debe ser positivo.' })
   readonly estudiante_id: number;
 
-  /**
-   * ID de la materia para la cual se solicita la tutoría.
-   * Debe ser un número entero y positivo.
-   */
-  @IsInt() // Correcto para recibir números
-  @IsPositive()
+  @IsInt({ message: 'El ID de materia debe ser un número entero.' })
+  @IsPositive({ message: 'El ID de materia debe ser positivo.' })
   readonly materia_id: number;
 
-  /**
-   * ID del tutor asignado. Es opcional.
-   */
   @IsOptional()
-  @IsInt() // Correcto para recibir números
-  @IsPositive()
-  readonly tutor_id?: number;
+  @IsInt({ message: 'El ID de tutor debe ser un número entero.' })
+  @IsPositive({ message: 'El ID de tutor debe ser positivo.' })
+  readonly tutor_id: number;
 }
