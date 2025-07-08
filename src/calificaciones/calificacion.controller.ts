@@ -53,4 +53,12 @@ export class CalificacionController {
         return this.calificacionService.update(id, updateCalificacionDto);
     }
 
+    @Delete(':id')
+    @HttpCode(HttpStatus.NO_CONTENT) // Devuelve un código 204 (Sin Contenido) en caso de éxito.
+    // Aquí también puedes añadir @UseGuards() si la ruta debe ser protegida.
+    remove(@Param('id', ParseIntPipe) id: number) {
+        // ParseIntPipe convierte el parámetro de la URL en un número y lo valida.
+        return this.calificacionService.remove(id);
+    }
+
 }

@@ -133,6 +133,13 @@ export class CalificacionService {
     return this.calificacionRepository.save(calificacionActualizada);
   }
 
-
+    async remove(id: number): Promise<void> {
+      // 1. Reutilizamos el método findOne para verificar que la calificación existe.
+      // Si no existe, findOne lanzará automáticamente un error NotFoundException.
+      const calificacion = await this.findOne(id);
+  
+      // 2. Si la encuentra, la elimina. El método remove() espera la entidad completa.
+      await this.calificacionRepository.remove(calificacion);
+      }
 
 }
