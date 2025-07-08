@@ -53,6 +53,8 @@ export class CalificacionController {
         return this.calificacionService.update(id, updateCalificacionDto);
     }
 
+    @UseGuards(JwtAuthGuard, RolFlexibleGuard) 
+    @AllowedRoles('coordinador') 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT) // Devuelve un código 204 (Sin Contenido) en caso de éxito.
     // Aquí también puedes añadir @UseGuards() si la ruta debe ser protegida.
@@ -61,7 +63,9 @@ export class CalificacionController {
         return this.calificacionService.remove(id);
     }
 
-        @Get(':id')
+    @UseGuards(JwtAuthGuard, RolFlexibleGuard) 
+    @AllowedRoles('coordinador') 
+    @Get(':id')
     // Aquí también puedes añadir @UseGuards() si la ruta debe ser protegida.
     findOne(@Param('id', ParseIntPipe) id: number) {
         // @Param('id') extrae el ID de la URL (ej: /calificaciones/123).
