@@ -152,6 +152,52 @@ export class SolicitudService {
     return solicitudWithRelations;
   }
 
+  async findSolicitudesAsignadasTutor(tutorId: number): Promise<Solicitud[]> {
+    return this.solicitudRepository.find({
+      where: { tutor: { id: tutorId } },
+      relations: ['estudiante', 'materia'], 
+    });
+  }
+
+  async aceptarSolicitud(id: number, tutorId: number): Promise<Solicitud> {
+    const solicitud = await this.solicitudRepository.findOne({
+      where: { id: id, tutor: { id: tutorId } },
+      relations: ['estudiante', 'tutor', 'materia'],
+    });
+
+    if (!solicitud) {
+      throw new NotFoundException(`Solicitud con ID ${id} no encontrada o no asignada a este tutor.`);
+    }
+
+    if (solicitud.estado !== 'Pendiente') {
+      throw new BadRequestException(
+        `La solicitud ${id} no está en estado Pendiente y no puede ser aceptada.`,
+      );
+    }
+
+    solicitud.estado = 'Aceptada';
+    const acceptedSolicitud = await this.solicitudRepository.save(solicitud);
+
+    // Crear sesión
+    if (!acceptedSolicitud.tutor) {
+      throw new NotFoundException(`El tutor asociado a la solicitud aceptada no se encuentra.`);
+    }
+
+    const newSesion = this.sesionRepository.create({
+      solicitud: { id: acceptedSolicitud.id },
+      estudiante: { id: acceptedSolicitud.estudiante.id },
+      tutor: { id: acceptedSolicitud.tutor.id },
+      materia: { id: acceptedSolicitud.materia.id },
+      fechaSesion: acceptedSolicitud.fecha_solicitada,
+      horaSesion: acceptedSolicitud.hora_solicitada,
+      completada: false,
+    });
+
+    await this.sesionRepository.save(newSesion);
+
+    return acceptedSolicitud;
+  }
+
   async rechazarSolicitud(id: number, tutorId: number): Promise<Solicitud> {
     const solicitud = await this.solicitudRepository.findOne({
       where: { id: id, tutor: { id: tutorId } },
