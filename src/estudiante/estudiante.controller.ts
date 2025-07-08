@@ -11,7 +11,9 @@ import { AllowedRoles } from '../common/decorators/roles_permitidos.decorator';
 export class EstudianteController {
   constructor(private readonly estudianteService: EstudianteService) {}
 
-  @Post('registro')
+  @UseGuards(RolFlexibleGuard)
+  @AllowedRoles('coordinador')
+  @Post('registrar')
   async registrar(
     @Body(new ValidationPipe({ 
         transform: true, 

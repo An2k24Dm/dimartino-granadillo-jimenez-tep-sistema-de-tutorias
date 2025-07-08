@@ -11,7 +11,9 @@ import { ActualizarPerfilTutorDto } from '../tutor/dto/actualizar_perfil.dto';
 export class TutorController {
   constructor(private readonly tutorService: TutorService) {}
 
-  @Post('registro')
+  @UseGuards(RolFlexibleGuard)
+  @AllowedRoles('coordinador')
+  @Post('registrar')
   async registrar(
     @Body(new ValidationPipe({
       transform: true,
