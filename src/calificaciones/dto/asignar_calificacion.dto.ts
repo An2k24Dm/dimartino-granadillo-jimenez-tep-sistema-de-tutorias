@@ -4,15 +4,15 @@ export class CreateCalificacionDto {
     @IsNumber()
     @Min(1)
     @Max(5)
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'El campo calificaión no puede estar vacío.' }) 
     readonly calificacion: number;
 
     @IsString()
     @IsOptional()
-    readonly comentario?: string;
+    comentario?: string;
 
-    @IsInt()
-    @IsPositive()
-    @IsNotEmpty()
+    @IsInt({ message: 'El campo sesión debe tener un número entero' })
+    @IsPositive({ message: 'El campo sesión debe tener un número positivo' })
+    @IsNotEmpty({ message: 'El campo sesión no puede estar vacío.' }) 
     readonly sesionId: number;
 }

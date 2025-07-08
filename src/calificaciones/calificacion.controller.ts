@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { CalificacionService } from './calificacion.service';
 import { CreateCalificacionDto } from './dto/asignar_calificacion.dto';
+import { UpdateCalificacionDto } from './dto/modificar_calificacion.dto';
 import { User } from 'src/common/decorators/usuario.decorator';
 import { RolFlexibleGuard } from 'src/common/guards/rol_flexible.guard';
 import { AllowedRoles } from 'src/common/decorators/roles_permitidos.decorator';
@@ -34,11 +35,22 @@ export class CalificacionController {
         @Body() createCalificacionDto: CreateCalificacionDto,
         @User() usuarioPayload: { userId: number; rol: string }, 
     )   {
-            console.log('DTO recibido:', createCalificacionDto);
             const estudianteId = usuarioPayload.userId; 
             return this.calificacionService.createCalificacion(
                 createCalificacionDto,
                 estudianteId,
             );
         }
+
+    @UseGuards(JwtAuthGuard, RolFlexibleGuard) 
+    @AllowedRoles('coordinador') 
+    @Patch(':id')
+    // Aquí también podrías añadir un @UseGuards(JwtAuthGuard) si la ruta es protegida
+    update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateCalificacionDto: UpdateCalificacionDto,
+    ) {
+        return this.calificacionService.update(id, updateCalificacionDto);
     }
+
+}
