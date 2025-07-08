@@ -61,4 +61,11 @@ export class CalificacionController {
         return this.calificacionService.remove(id);
     }
 
+        @Get(':id')
+    // Aquí también puedes añadir @UseGuards() si la ruta debe ser protegida.
+    findOne(@Param('id', ParseIntPipe) id: number) {
+        // @Param('id') extrae el ID de la URL (ej: /calificaciones/123).
+        // ParseIntPipe lo convierte en un número y valida que sea un entero válido.
+        return this.calificacionService.findOne(id);
+    }
 }
