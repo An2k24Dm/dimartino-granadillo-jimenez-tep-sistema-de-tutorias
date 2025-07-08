@@ -11,6 +11,7 @@ import { CoordinadorModule } from './coordinador/coordinador.module';
 import { MateriaModule } from './materia/materia.module';
 import { SolicitudModule } from './solicitud/solicitud.module';
 import { SesionModule } from './sesion/sesion.module';
+import { CalificacionModule } from './calificaciones/calificacion.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { SesionModule } from './sesion/sesion.module';
     MateriaModule,
     SolicitudModule,
     SesionModule,
+    CalificacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
