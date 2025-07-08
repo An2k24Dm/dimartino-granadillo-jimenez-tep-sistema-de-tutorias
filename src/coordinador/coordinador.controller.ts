@@ -12,7 +12,9 @@ import { AsignarMateriaTutorDto } from '../coordinador/dto/asignar_materia.dto';
 export class CoordinadorController {
   constructor(private readonly coordinadorService: CoordinadorService) {}
 
-  @Post('registro')
+  @UseGuards(RolFlexibleGuard)
+  @AllowedRoles('coordinador')
+  @Post('registrar')
   async registrar(
     @Body(new ValidationPipe({
       transform: true,
@@ -55,7 +57,7 @@ export class CoordinadorController {
 
   @UseGuards(RolFlexibleGuard)
   @AllowedRoles('coordinador')
-  @Post('asignar-materia')
+  @Post('asignar/materia')
   async asignarMateriaATutor(
     @Body(new ValidationPipe({
       transform: true,
