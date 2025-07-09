@@ -12,6 +12,9 @@ import { MateriaModule } from './materia/materia.module';
 import { SolicitudModule } from './solicitud/solicitud.module';
 import { SesionModule } from './sesion/sesion.module';
 import { CalificacionModule } from './calificaciones/calificacion.module';
+import { LogModule } from './log/log.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import {DatabaseLoggingInterceptor} from './common/interceptors/logging.interceptor'
 
 @Module({
   imports: [
@@ -39,8 +42,14 @@ import { CalificacionModule } from './calificaciones/calificacion.module';
     SolicitudModule,
     SesionModule,
     CalificacionModule,
+    LogModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, 
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: DatabaseLoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}
