@@ -118,4 +118,26 @@ export class SesionService {
             offset,
         };  
     }
+
+    async estadisticasSesionesPorTutor(): Promise<{ tutorId: number; cantidad: number }[]> {
+        const result = await this.sesionRepository
+            .createQueryBuilder('sesion')
+            .select('sesion.tutor_id', 'tutorId')
+            .addSelect('COUNT(*)', 'cantidad')
+            .where('sesion.completada = true')
+            .groupBy('sesion.tutor_id')
+            .getRawMany();
+        return result;
+    }
+
+    async estadisticasSesionesPorMateria(): Promise<{ materiaId: number; cantidad: number }[]> {
+        const result = await this.sesionRepository
+            .createQueryBuilder('sesion')
+            .select('sesion.materia_id', 'materiaId')
+            .addSelect('COUNT(*)', 'cantidad')
+            .where('sesion.completada = true')
+            .groupBy('sesion.materia_id')
+            .getRawMany();
+        return result;
+    }
 }

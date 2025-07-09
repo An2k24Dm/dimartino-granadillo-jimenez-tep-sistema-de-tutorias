@@ -57,4 +57,13 @@ export class SesionController {
         );
     }
 
+    @Get('estadisticas/tutores')
+        async estadisticasPorTutor() {
+        return this.sesionService.estadisticasSesionesPorTutor();
+    }
+
+    @Get('estadisticas/materias')
+        async estadisticasPorMateria() {
+        return this.sesionService.estadisticasSesionesPorMateria();
+    }
 }
