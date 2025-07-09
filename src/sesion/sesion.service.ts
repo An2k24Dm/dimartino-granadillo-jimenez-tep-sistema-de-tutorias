@@ -122,7 +122,8 @@ export class SesionService {
 
         // Asignar nuevos valores a sesión
         if (dto.fechaSesion) {
-            sesion.fechaSesion = new Date(dto.fechaSesion);
+            const fecha = new Date(dto.fechaSesion + 'T00:00:00');
+            sesion.fechaSesion = fecha;
         }
         if (dto.horaSesion) {
             sesion.horaSesion = dto.horaSesion as any;
