@@ -75,4 +75,47 @@ export class SesionService {
             total,
         };
     }
+
+    async filtrarSesiones(
+        tutorId?: number,
+        materiaId?: number,
+        fechaSesion?: string,
+        estadoSesion?: boolean,
+        limit = 10,
+        offset = 0,
+        ): Promise<{ data: Sesion[]; total: number; count: number; limit: number; offset: number }> {
+        const queryBuilder = this.sesionRepository.createQueryBuilder('sesion')
+            .leftJoinAndSelect('sesion.tutor', 'tutor')
+            .leftJoinAndSelect('sesion.materia', 'materia')
+            .leftJoinAndSelect('sesion.estudiante', 'estudiante')
+            .leftJoinAndSelect('sesion.solicitud', 'solicitud');
+
+        if (tutorId) {
+            queryBuilder.andWhere('tutor.id = :tutorId', { tutorId });
+        }
+
+        if (materiaId) {
+            queryBuilder.andWhere('materia.id = :materiaId', { materiaId });
+        }
+
+        if (fechaSesion) {
+            queryBuilder.andWhere('sesion.fechaSesion = :fechaSesion', { fechaSesion });
+        }
+
+        if (estadoSesion !== undefined) {
+            queryBuilder.andWhere('sesion.completada = :estadoSesion', { estadoSesion });
+        }
+
+        queryBuilder.take(limit).skip(offset).orderBy('sesion.fechaSesion', 'ASC');
+
+        const [data, total] = await queryBuilder.getManyAndCount();
+
+        return {
+            data,
+            total,
+            count: data.length,
+            limit,
+            offset,
+        };  
+    }
 }

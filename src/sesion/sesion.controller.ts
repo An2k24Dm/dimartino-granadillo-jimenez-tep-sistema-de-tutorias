@@ -36,4 +36,25 @@ export class SesionController {
         const offsetNum = Number(offset);
         return this.sesionService.listarTodasSesiones(limitNum, offsetNum);
     }
+
+    @Get('filtrar')
+    async filtrarSesiones(
+    @Query('tutorId') tutorId?: number,
+    @Query('materiaId') materiaId?: number,
+    @Query('fechaSesion') fechaSesion?: string,
+    @Query('estadoSesion') estadoSesionStr?: string,
+    @Query('limit') limit = 10,
+    @Query('offset') offset = 0,
+    ) {
+        const estadoSesion = estadoSesionStr !== undefined ? estadoSesionStr === 'true' : undefined;
+        return this.sesionService.filtrarSesiones(
+            tutorId ? Number(tutorId) : undefined,
+            materiaId ? Number(materiaId) : undefined,
+            fechaSesion,
+            estadoSesion,
+            Number(limit),
+            Number(offset),
+        );
+    }
+
 }
