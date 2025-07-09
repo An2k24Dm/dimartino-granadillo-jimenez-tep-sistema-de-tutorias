@@ -61,4 +61,18 @@ export class SesionService {
 
         return sesion;
     }
+
+    async listarTodasSesiones(limit = 10, offset = 0): Promise<{ data: Sesion[]; total: number }> {
+        const [data, total] = await this.sesionRepository.findAndCount({
+            relations: ['estudiante', 'tutor', 'materia', 'solicitud'],
+            take: limit,
+            skip: offset,
+            order: { fechaSesion: 'ASC' },
+        });
+
+        return {
+            data,
+            total,
+        };
+    }
 }

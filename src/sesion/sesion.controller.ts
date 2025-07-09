@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Patch, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, UseGuards, Patch, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { SesionService } from './sesion.service';
 import { RolFlexibleGuard } from '../common/guards/rol_flexible.guard';
 import { AllowedRoles } from '../common/decorators/roles_permitidos.decorator';
@@ -23,5 +23,17 @@ export class SesionController {
         @User() usuarioPayload: { userId: number; rol: string },
     ) {
         return this.sesionService.marcarSesionCompletada(sesionId, usuarioPayload.userId);
+    }
+
+    @UseGuards(RolFlexibleGuard)
+    @AllowedRoles('coordinador')
+    @Get('visualizar')
+    async listarTodasSesiones(
+    @Query('limit') limit = 10,
+    @Query('offset') offset = 0,
+    ) {
+        const limitNum = Number(limit);
+        const offsetNum = Number(offset);
+        return this.sesionService.listarTodasSesiones(limitNum, offsetNum);
     }
 }
