@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Patch, Param, ParseIntPipe, Delete, HttpCode, Put, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Patch, Param, ParseIntPipe, Query, Delete, HttpCode, Put, Body } from '@nestjs/common';
 import { SesionService } from './sesion.service';
 import { RolFlexibleGuard } from '../common/guards/rol_flexible.guard';
 import { AllowedRoles } from '../common/decorators/roles_permitidos.decorator';
@@ -26,6 +26,54 @@ export class SesionController {
         return this.sesionService.marcarSesionCompletada(sesionId, usuarioPayload.userId);
     }
 
+    @UseGuards(RolFlexibleGuard)
+    @AllowedRoles('coordinador')
+    @Get('visualizar')
+    async listarTodasSesiones(
+    @Query('limit') limit = 10,
+    @Query('offset') offset = 0,
+    ) {
+        const limitNum = Number(limit);
+        const offsetNum = Number(offset);
+        return this.sesionService.listarTodasSesiones(limitNum, offsetNum);
+    }
+
+    @UseGuards(RolFlexibleGuard)
+    @AllowedRoles('coordinador')
+    @Get('filtrar')
+    async filtrarSesiones(
+    @Query('tutorId') tutorId?: number,
+    @Query('materiaId') materiaId?: number,
+    @Query('fechaSesion') fechaSesion?: string,
+    @Query('estadoSesion') estadoSesionStr?: string,
+    @Query('limit') limit = 10,
+    @Query('offset') offset = 0,
+    ) {
+        const estadoSesion = estadoSesionStr !== undefined ? estadoSesionStr === 'true' : undefined;
+        return this.sesionService.filtrarSesiones(
+            tutorId ? Number(tutorId) : undefined,
+            materiaId ? Number(materiaId) : undefined,
+            fechaSesion,
+            estadoSesion,
+            Number(limit),
+            Number(offset),
+        );
+    }
+
+    @UseGuards(RolFlexibleGuard)
+    @AllowedRoles('coordinador')
+    @Get('estadisticas/tutores')
+        async estadisticasPorTutor() {
+        return this.sesionService.estadisticasSesionesPorTutor();
+    }
+    
+    @UseGuards(RolFlexibleGuard)
+    @AllowedRoles('coordinador')
+    @Get('estadisticas/materias')
+        async estadisticasPorMateria() {
+        return this.sesionService.estadisticasSesionesPorMateria();
+    }
+  
     @UseGuards(RolFlexibleGuard)
     @AllowedRoles('coordinador')
     @Delete(':id')
